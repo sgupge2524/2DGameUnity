@@ -17,17 +17,17 @@ namespace Platformer.Gameplay
         public override void Execute()
         {
             var player = model.player;
-            if (player.health.IsAlive)
+            if (player.HealthComponent.IsAlive)
             {
-            player.health.Decrement();
+                player.HealthComponent.Decrement();
                 // ダメージ演出
-                if (player.audioSource && player.ouchAudio)
-                    player.audioSource.PlayOneShot(player.ouchAudio);
+                if (player.AudioSourceComponent && player.OuchAudio)
+                    player.AudioSourceComponent.PlayOneShot(player.OuchAudio);
 
                 player.animator.SetTrigger("hurt");
 
                 // HPが0になった時だけ死亡処理
-                if (!player.health.IsAlive)
+                if (!player.HealthComponent.IsAlive)
                 {
                     model.virtualCamera.m_Follow = null;
                     model.virtualCamera.m_LookAt = null;

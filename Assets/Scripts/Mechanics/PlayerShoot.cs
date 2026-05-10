@@ -47,15 +47,27 @@ public class PlayerShoot : MonoBehaviour
             return;
         }
 
-        Debug.Log("発射時のfacingDirection: " + playerController.facingDirection);
+        Debug.Log("発射時のfacingDirection: " + playerController.FacingDirection);
 
-        bulletScript.direction = playerController.facingDirection;
+        bulletScript.direction = playerController.FacingDirection;
     }
 
     void UpdateFirePointPosition()
     {
+        if (firePoint == null)
+        {
+            Debug.LogError("firePoint が設定されていません");
+            return;
+        }
+
+        if (playerController == null)
+        {
+            Debug.LogError("playerController が設定されていません");
+            return;
+        }
+
         Vector3 pos = firePoint.localPosition;
-        pos.x = Mathf.Abs(pos.x) * playerController.facingDirection;
+        pos.x = Mathf.Abs(pos.x) * playerController.FacingDirection;
         firePoint.localPosition = pos;
     }
 }

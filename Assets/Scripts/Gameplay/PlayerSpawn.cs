@@ -14,13 +14,13 @@ namespace Platformer.Gameplay
         public override void Execute()
         {
             var player = model.player;
-            player.collider2d.enabled = true;
+            player.Collider2DComponent.enabled = true;
             player.controlEnabled = false;
-            if (player.audioSource && player.respawnAudio)
-                player.audioSource.PlayOneShot(player.respawnAudio);
-            player.health.Increment();
+            if (player.AudioSourceComponent && player.RespawnAudio)
+                player.AudioSourceComponent.PlayOneShot(player.RespawnAudio);
+            player.HealthComponent.Increment();
             player.Teleport(model.spawnPoint.transform.position);
-            player.jumpState = PlayerController.JumpState.Grounded;
+            player.ResetJumpState();
             player.animator.SetBool("dead", false);
             model.virtualCamera.m_Follow = player.transform;
             model.virtualCamera.m_LookAt = player.transform;

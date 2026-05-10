@@ -18,11 +18,14 @@ namespace Platformer.Mechanics
         /// A custom gravity coefficient applied to this entity.
         /// </summary>
         public float gravityModifier = 1f;
+        public Vector2 gravityDirection = Vector2.down;
 
         /// <summary>
-        /// The current velocity of the entity.
+        /// エンティティの現在のベクトル
         /// </summary>
         public Vector2 velocity;
+
+        public float gravityMaxSpeed = 6f;
 
         /// <summary>
         /// Is the entity currently sitting on a surface?
@@ -102,27 +105,67 @@ namespace Platformer.Mechanics
         protected virtual void FixedUpdate()
         {
             //if already falling, fall faster than the jump speed, otherwise use normal gravity.
-            if (velocity.y < 0)
-                velocity += gravityModifier * Physics2D.gravity * Time.deltaTime;
-            else
-                velocity += Physics2D.gravity * Time.deltaTime;
+            Vector2 gravity = gravityDirection.normalized * Mathf.Abs(Physics2D.gravity.y);
 
-            velocity.x = targetVelocity.x;
+            velocity += gravityModifier * gravity * Time.deltaTime;
+
+            ApplyInputVelocity();
+            ClampGravitySpeed();
 
             IsGrounded = false;
 
             var deltaPosition = velocity * Time.deltaTime;
 
-            var moveAlongGround = new Vector2(groundNormal.y, -groundNormal.x);
 
-            var move = moveAlongGround * deltaPosition.x;
+            // 重力方向
+            Vector2 gravityDir = gravityDirection.normalized;
 
+            // 重力と逆方向 = 地面の法線方向
+            Vector2 groundNormalByGravity = -gravityDir;
+
+            // 地面に沿う方向
+            Vector2 moveAlongGround = new Vector2(groundNormalByGravity.y, -groundNormalByGravity.x);
+
+            // 地面に沿った移動
+            float alongGroundAmount = Vector2.Dot(deltaPosition, moveAlongGround);
+            var move = moveAlongGround * alongGroundAmount;
             PerformMovement(move, false);
 
-            move = Vector2.up * deltaPosition.y;
-
+            // 重力方向の移動
+            float gravityAmount = Vector2.Dot(deltaPosition, gravityDir);
+            move = gravityDir * gravityAmount;
             PerformMovement(move, true);
 
+        }
+
+        /// <summary>
+        /// 重力方向に対して垂直な方向へ入力速度を適用する。
+        /// </summary>
+        void ApplyInputVelocity()
+        {
+            if (gravityDirection == Vector2.up || gravityDirection == Vector2.down)
+            {
+                velocity.x = targetVelocity.x;
+            }
+            else if (gravityDirection == Vector2.left || gravityDirection == Vector2.right)
+            {
+                velocity.y = targetVelocity.y;
+            }
+        }
+
+        /// <summary>
+        /// 重力方向の速度が最大値を超えないよう制限する。
+        /// </summary>
+        void ClampGravitySpeed()
+        {
+            if (gravityDirection == Vector2.up || gravityDirection == Vector2.down)
+            {
+                velocity.y = Mathf.Clamp(velocity.y, -gravityMaxSpeed, gravityMaxSpeed);
+            }
+            else if (gravityDirection == Vector2.left || gravityDirection == Vector2.right)
+            {
+                velocity.x = Mathf.Clamp(velocity.x, -gravityMaxSpeed, gravityMaxSpeed);
+            }
         }
 
         void PerformMovement(Vector2 move, bool yMovement)
@@ -138,15 +181,10 @@ namespace Platformer.Mechanics
                     var currentNormal = hitBuffer[i].normal;
 
                     //is this surface flat enough to land on?
-                    if (currentNormal.y > minGroundNormalY)
+                    if (Vector2.Dot(currentNormal, -gravityDirection.normalized) > minGroundNormalY)
                     {
                         IsGrounded = true;
-                        // if moving up, change the groundNormal to new surface normal.
-                        if (yMovement)
-                        {
-                            groundNormal = currentNormal;
-                            currentNormal.x = 0;
-                        }
+                        groundNormal = currentNormal;
                     }
                     if (IsGrounded)
                     {
