@@ -32,8 +32,8 @@ namespace Platformer.Mechanics
         }
 
         /// <summary>
-        /// Decrement the HP of the entity. Will trigger a HealthIsZero event when
-        /// current HP reaches 0.
+        /// エンティティのHPを1減らします。
+        /// 現在HPが0になった場合は HealthIsZero イベントを発火します。
         /// </summary>
         public void Decrement()
         {

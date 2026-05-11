@@ -34,21 +34,52 @@ namespace Platformer.Mechanics
         void OnCollisionEnter2D(Collision2D collision)
         {
             var player = collision.gameObject.GetComponent<PlayerController>();
-            if (player != null)
-            {
-                var ev = Schedule<PlayerEnemyCollision>();
-                ev.player = player;
-                ev.enemy = this;
-            }
+            if (player != null) OnPlayerCollision(player);
+        }
+
+        /// <summary>
+        /// プレイヤーとの衝突を処理する。衝突イベントをスケジュールする。
+        /// </summary>
+        /// <param name="player">衝突したプレイヤー</param>
+        private void OnPlayerCollision(PlayerController player)
+        {
+            var ev = Schedule<PlayerEnemyCollision>();
+            ev.player = player;
+            ev.enemy = this;
         }
 
         void Update()
         {
+            UpdatePatrol();
+        }
+
+        /// <summary>
+        /// パトロール路に沿った移動を更新する。
+        /// Mover の初期化と移動方向の決定を行う。
+        /// </summary>
+        private void UpdatePatrol()
+        {
             if (path != null)
             {
-                if (mover == null) mover = path.CreateMover(control.maxSpeed * 0.5f);
-                control.move.x = Mathf.Clamp(mover.Position.x - transform.position.x, -1, 1);
+                InitializeMover();
+                UpdateMoveInput();
             }
+        }
+
+        /// <summary>
+        /// Mover を初期化する（未初期化の場合のみ）。
+        /// </summary>
+        private void InitializeMover()
+        {
+            if (mover == null) mover = path.CreateMover(control.maxSpeed * 0.5f);
+        }
+
+        /// <summary>
+        /// Mover の現在位置に基づいて敵の移動入力を更新する。
+        /// </summary>
+        private void UpdateMoveInput()
+        {
+            control.move.x = Mathf.Clamp(mover.Position.x - transform.position.x, -1, 1);
         }
 
     }

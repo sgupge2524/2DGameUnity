@@ -7,7 +7,7 @@ using UnityEngine;
 namespace Platformer.Gameplay
 {
     /// <summary>
-    /// Fired when the player has died.
+    /// プレイヤーが死亡したときに発火します。
     /// </summary>
     /// <typeparam name="PlayerDeath"></typeparam>
     public class PlayerDeath : Simulation.Event<PlayerDeath>

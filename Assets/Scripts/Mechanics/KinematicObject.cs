@@ -44,18 +44,18 @@ namespace Platformer.Mechanics
 
 
         /// <summary>
-        /// Bounce the object's vertical velocity.
+        /// オブジェクトの垂直方向の速度を跳ね返す（設定された値に置き換える）。
         /// </summary>
-        /// <param name="value"></param>
+        /// <param name="value">垂直速度として設定する値</param>
         public void Bounce(float value)
         {
             velocity.y = value;
         }
 
         /// <summary>
-        /// Bounce the objects velocity in a direction.
+        /// 指定した方向ベクトルに応じてオブジェクトの速度を跳ね返す（x,y をそれぞれ設定する）。
         /// </summary>
-        /// <param name="dir"></param>
+        /// <param name="dir">設定する速度ベクトル</param>
         public void Bounce(Vector2 dir)
         {
             velocity.y = dir.y;
